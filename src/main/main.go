@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"./viewmodel"
+	"golang-webapp/src/viewmodel"
 )
 
 func main() {

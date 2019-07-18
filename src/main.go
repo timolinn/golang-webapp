@@ -1,31 +1,16 @@
 package main
 
 import (
+	"golang-webapp/src/controller"
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
 	templates := populateTemplates()
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		requestedFile := r.URL.Path[1:]
-		log.Println(requestedFile)
-		t := templates[requestedFile+".html"]
-		if t != nil {
-			err := t.Execute(w, nil)
-			if err != nil {
-				log.Println(err)
-			}
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Oh noes!! You got lost, my bad!"))
-		}
-	})
-	http.Handle("/img/", http.FileServer(http.Dir("public")))
-	http.Handle("/css/", http.FileServer(http.Dir("public")))
+	controller.StartUp(templates)
 	http.ListenAndServe(":8000", nil)
 }
 
