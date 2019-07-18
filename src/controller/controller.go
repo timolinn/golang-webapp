@@ -6,21 +6,23 @@ import (
 )
 
 var (
-	homeController home
-	shopController shop
+	homeController         home
+	shopController         shop
+	standlocatorController standlocator
 )
 
-// starts up the application
+// StartUp the application
 func StartUp(templates map[string]*template.Template) {
 	homeController.homeTemplate = templates["home.html"]
 	shopController.shopTemplate = templates["shop.html"]
 	shopController.categoryTemplate = templates["shop_details.html"]
 	homeController.loginTemplate = templates["login.html"]
-	homeController.standLocatorTemplate = templates["stand_locator.html"]
+	standlocatorController.standLocatorTemplate = templates["stand_locator.html"]
 
 	// register routes
 	homeController.registerRoutes()
 	shopController.registerRoutes()
+	standlocatorController.registerRoutes()
 
 	// static routing
 	http.Handle("/img/", http.FileServer(http.Dir("public")))
