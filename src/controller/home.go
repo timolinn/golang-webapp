@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"golang-webapp/src/model"
 	"golang-webapp/src/viewmodel"
 	"html/template"
 	"log"
@@ -28,17 +29,26 @@ func (h home) handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		email := r.Form.Get("email")
 		password := r.Form.Get("password")
-		if email == "test@gmail.com" && password == "password" {
+		if user, err := model.Login(email, password); err == nil {
+			log.Printf("User has been logged in: %v\n", user)
 			http.Redirect(w, r, "/home", http.StatusTemporaryRedirect)
 			return
 		}
+		log.Printf("Failed to log user in with email %v, error was: %v", email, err)
 		vm.Password = password
 		vm.Email = email
 	}
+	w.Header().Add("Content-Type", "text/html")
 	h.loginTemplate.Execute(w, vm)
 }
 
 func (h home) handleHome(w http.ResponseWriter, r *http.Request) {
+	if pusher, ok := w.(http.Pusher); ok {
+		pusher.Push("/css/app.css", &http.PushOptions{
+			Header: http.Header{"Content-Type": []string{"text/css"}},
+		})
+	}
 	vm := viewmodel.NewHome()
+	w.Header().Add("Content-Type", "text/html")
 	h.homeTemplate.Execute(w, vm)
 }

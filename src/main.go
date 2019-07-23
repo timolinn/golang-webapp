@@ -1,17 +1,39 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"golang-webapp/src/controller"
+	"golang-webapp/src/middleware"
+	"golang-webapp/src/model"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+
+	_ "net/http/pprof"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	templates := populateTemplates()
+	db := connectToDatabase()
+	defer db.Close()
 	controller.StartUp(templates)
-	http.ListenAndServe(":8000", nil)
+	go http.ListenAndServe(":8080", nil)
+	http.ListenAndServeTLS(":8000", "cert.pem", "key.pem", &middleware.TimeoutMiddleware{new(middleware.GzipMiddleware)})
+}
+
+func connectToDatabase() *sql.DB {
+	db, err := sql.Open("postgres", "postgres://timothyonyiuke:@localhost/lss?sslmode=disable")
+	if err != nil {
+		log.Fatalln(fmt.Errorf("unable to connect to database: %v", err))
+	}
+	log.Println("Connected to database")
+	model.SetDatabase(db)
+	return db
 }
 
 func populateTemplates() map[string]*template.Template {
